@@ -118,7 +118,6 @@ void net_pool()
 
     while ((len = enc28j60_packetReceive(net_buf, sizeof(net_buf))) > 0)
     {
-
         eth_read(frame, len);
     }
 }
