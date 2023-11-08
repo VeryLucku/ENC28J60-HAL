@@ -2,37 +2,31 @@
 
 char str1[60] = {0};
 
-typedef struct enc28j60_frame
-{
-
-    uint8_t addr_dest[6];
-
-    uint8_t addr_src[6];
-
-    uint16_t type;
-
-    uint8_t data[];
-
-} enc28j60_frame_ptr;
-
-typedef struct arp_msg
-{
-    uint16_t net_tp;
-    uint16_t proto_tp;
-    uint8_t macaddr_len;
-    uint8_t ipaddr_len;
-    uint16_t op;
-    uint8_t macaddr_src[6];
-    uint8_t ipaddr_src[4];
-    uint8_t macaddr_dst[6];
-    uint8_t ipaddr_dst[4];
-} arp_msg_ptr;
-
 extern UART_HandleTypeDef huart2;
 
 uint8_t net_buf[ENC28J60_MAXFRAME];
 extern uint8_t macaddr[6];
 uint8_t ipaddr[4] = IP_ADDR;
+
+uint16_t checksum(uint8_t *ptr, uint16_t len)
+{
+    uint32_t sum = 0;
+
+    while (len > 1)
+    {
+        sum += (uint16_t)(((uint32_t)*ptr << 8) | *(ptr + 1));
+        ptr += 2;
+        len -= 2;
+    }
+
+    if (len)
+        sum += ((uint32_t)*ptr) << 8;
+
+    while (sum >> 16)
+        sum = (uint16_t)sum + (sum >> 16);
+
+    return ~be16toword((uint16_t)sum);
+}
 
 uint8_t arp_read(enc28j60_frame_ptr *frame, uint16_t len)
 {
@@ -90,6 +84,69 @@ void arp_send(enc28j60_frame_ptr *frame)
     eth_send(frame, sizeof(arp_msg_ptr));
 }
 
+uint8_t ip_send(enc28j60_frame_ptr *frame, uint16_t len)
+{
+
+    uint8_t res = 0;
+    ip_pkt_ptr *ip_pkt = (void*)frame->data;
+    ip_pkt->len = be16toword(len);
+    ip_pkt->fl_frg_of = 0;
+    ip_pkt->ttl=128;
+    ip_pkt->cs=0;
+    memcpy(ip_pkt->ipaddr_dst, ip_pkt->ipaddr_src,4);
+    memcpy(ip_pkt->ipaddr_src, ipaddr,4);
+
+    ip_pkt->cs = checksum((void *)ip_pkt, sizeof(ip_pkt_ptr));
+
+    eth_send(frame, len);
+
+    return res;
+}
+
+uint8_t icmp_read(enc28j60_frame_ptr *frame, uint16_t len)
+{
+    uint8_t res = 0;
+    ip_pkt_ptr *ip_pkt = (void *)frame->data;
+
+    icmp_pkt_ptr *icmp_pkt = (void *)ip_pkt->data;
+
+    if ((len >= sizeof(icmp_pkt_ptr)) && (icmp_pkt->msg_tp == ICMP_REQ))
+    {
+        icmp_pkt->msg_tp = ICMP_REPLY;
+        icmp_pkt->cs = 0;
+        icmp_pkt->cs = checksum((void *)icmp_pkt, len);
+        ip_send(frame, len+sizeof(ip_pkt_ptr));
+    }
+
+    return res;
+}
+
+
+
+uint8_t ip_read(enc28j60_frame_ptr *frame, uint16_t len)
+{
+    uint8_t res = 0;
+    ip_pkt_ptr *ip_pkt = (void *)(frame->data);
+
+    if ((ip_pkt->verlen == 0x45) && (!memcmp(ip_pkt->ipaddr_dst, ipaddr, 4)))
+    {
+        len = be16toword(ip_pkt->len) - sizeof(ip_pkt_ptr);
+
+        if (ip_pkt->prt == IP_ICMP)
+        {
+            icmp_read(frame, len);
+        }
+        else if (ip_pkt->prt == IP_TCP)
+        {
+        }
+        else if (ip_pkt->prt == IP_UDP)
+        {
+        }
+    }
+
+    return res;
+}
+
 void eth_read(enc28j60_frame_ptr *frame, uint16_t len)
 {
     if (len >= sizeof(enc28j60_frame_ptr))
@@ -106,6 +163,11 @@ void eth_read(enc28j60_frame_ptr *frame, uint16_t len)
             {
                 arp_send(frame);
             }
+        }
+
+        if (frame->type == ETH_IP)
+        {
+            ip_read(frame, len - sizeof(ip_pkt_ptr));
         }
     }
 }
