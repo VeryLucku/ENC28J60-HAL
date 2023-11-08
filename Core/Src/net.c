@@ -100,8 +100,9 @@ uint8_t arp_read(enc28j60_frame_ptr *frame, uint16_t len)
                 }
             }
         }
-        return res;
     }
+
+    return res;
 }
 
 void arp_send(enc28j60_frame_ptr *frame)

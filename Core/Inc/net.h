@@ -77,3 +77,4 @@ uint8_t data[];//данные
 } icmp_pkt_ptr;
 
 void net_init();
+void net_pool();

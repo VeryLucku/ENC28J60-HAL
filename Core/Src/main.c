@@ -265,7 +265,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if (GPIO_Pin == GPIO_PIN_8)
   {
-    net_poll();
+    net_pool();
   }
 }
 /* USER CODE END 4 */
