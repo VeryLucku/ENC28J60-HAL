@@ -31,6 +31,7 @@ typedef struct arp_msg
 extern UART_HandleTypeDef huart2;
 
 uint8_t net_buf[ENC28J60_MAXFRAME];
+extern uint8_t macaddr[6];
 uint8_t ipaddr[4] = IP_ADDR;
 
 uint8_t arp_read(enc28j60_frame_ptr *frame, uint16_t len)
@@ -67,6 +68,28 @@ uint8_t arp_read(enc28j60_frame_ptr *frame, uint16_t len)
     }
 }
 
+void eth_send(enc28j60_frame_ptr *frame, uint16_t len)
+{
+    memcpy(frame->addr_dest, frame->addr_src, 6);
+    memcpy(frame->addr_src, macaddr, 6);
+    enc28j60_packetSend((void *)frame, len + sizeof(enc28j60_frame_ptr));
+}
+
+void arp_send(enc28j60_frame_ptr *frame)
+{
+    arp_msg_ptr *msg = (void *)frame->data;
+    msg->op = ARP_REPLY;
+    msg->op = ARP_REPLY;
+    memcpy(msg->macaddr_dst, msg->macaddr_src, 6);
+    memcpy(msg->macaddr_src, macaddr, 6);
+    memcpy(msg->macaddr_src, macaddr, 6);
+    memcpy(msg->ipaddr_dst, msg->ipaddr_src, 4);
+    memcpy(msg->ipaddr_src, ipaddr, 4);
+    memcpy(msg->ipaddr_src, ipaddr, 4);
+
+    eth_send(frame, sizeof(arp_msg_ptr));
+}
+
 void eth_read(enc28j60_frame_ptr *frame, uint16_t len)
 {
     if (len >= sizeof(enc28j60_frame_ptr))
@@ -79,7 +102,10 @@ void eth_read(enc28j60_frame_ptr *frame, uint16_t len)
         if (frame->type == ETH_ARP)
         {
             HAL_UART_Transmit(&huart2, (uint8_t *)str1, strlen(str1), 0x1000);
-            arp_read(frame, len - sizeof(enc28j60_frame_ptr));
+            if (arp_read(frame, len - sizeof(enc28j60_frame_ptr)))
+            {
+                arp_send(frame);
+            }
         }
     }
 }

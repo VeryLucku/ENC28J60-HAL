@@ -170,3 +170,4 @@
 //--------------------------------------------------
 
 void enc28j60_ini();
+void enc28j60_packetSend(uint8_t *buf, uint16_t buflen);

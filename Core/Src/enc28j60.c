@@ -11,7 +11,6 @@ struct
     uint16_t status;
 } header;
 
-
 extern UART_HandleTypeDef huart2;
 extern SPI_HandleTypeDef hspi1;
 
@@ -199,4 +198,31 @@ uint16_t enc28j60_packetReceive(uint8_t *buf, uint16_t buflen)
     }
 
     return len;
+}
+
+static void enc28j60_writeBuf(uint16_t len, uint8_t *data)
+{
+    SS_SELECT();
+    SPI_SendByte(ENC28J60_WRITE_BUF_MEM);
+    while (len--)
+        SPI_SendByte(*data++);
+    SS_DESELECT();
+}
+
+void enc28j60_packetSend(uint8_t *buf, uint16_t buflen)
+{
+    while (enc28j60_readOp(ENC28J60_READ_CTRL_REG, ECON1) & ECON1_TXRTS)
+    {
+        if (enc28j60_readRegByte(EIR) & EIR_TXERIF)
+        {
+            enc28j60_writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRST);
+            enc28j60_writeOp(ENC28J60_BIT_FIELD_CLR, ECON1, ECON1_TXRST);
+        }
+    }
+
+    enc28j60_writeReg(EWRPT, TXSTART_INIT);
+    enc28j60_writeReg(ETXND, TXSTART_INIT + buflen);
+    enc28j60_writeBuf(1, (uint8_t *)"x00");
+    enc28j60_writeBuf(buflen, buf);
+    enc28j60_writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRTS);
 }
