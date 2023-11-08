@@ -2,6 +2,15 @@
 
 uint8_t Enc28j60Bank;
 uint8_t macaddr[6] = MAC_ADDR;
+int gNextPacketPtr;
+
+struct
+{
+    uint16_t nextPacket;
+    uint16_t byteCount;
+    uint16_t status;
+} header;
+
 
 extern UART_HandleTypeDef huart2;
 extern SPI_HandleTypeDef hspi1;
@@ -155,4 +164,39 @@ void enc28j60_ini(void)
     enc28j60_writeOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE | EIE_PKTIE);
     // enable recieving of packets
     enc28j60_writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
+}
+
+uint16_t enc28j60_packetReceive(uint8_t *buf, uint16_t buflen)
+{
+    uint16_t len = 0;
+
+    if (enc28j60_readRegByte(EPKTCNT) > 0)
+    {
+        enc28j60_writeReg(ERDPT, gNextPacketPtr);
+        enc28j60_writeReg(ERDPT, gNextPacketPtr);
+        enc28j60_readBuf(sizeof header, (uint8_t *)&header);
+        gNextPacketPtr = header.nextPacket;
+        gNextPacketPtr = header.nextPacket;
+
+        len = header.byteCount - 4; // remove the CRC count
+        if (len > buflen)
+            len = buflen;
+
+        if ((header.status & 0x80) == 0)
+            len = 0;
+        else
+            enc28j60_readBuf(len, buf);
+        buf[len] = 0;
+
+        if (gNextPacketPtr - 1 > RXSTOP_INIT)
+            enc28j60_writeReg(ERXRDPT, RXSTOP_INIT);
+        else
+            enc28j60_writeReg(ERXRDPT, gNextPacketPtr - 1);
+
+        enc28j60_writeReg(ERXRDPT, gNextPacketPtr - 1);
+
+        enc28j60_writeOp(ENC28J60_BIT_FIELD_SET, ECON2, ECON2_PKTDEC);
+    }
+
+    return len;
 }

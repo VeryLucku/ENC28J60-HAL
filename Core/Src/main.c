@@ -94,13 +94,14 @@ int main(void)
   MX_SPI1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-  net_ini();
+  net_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    //net_pool();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
