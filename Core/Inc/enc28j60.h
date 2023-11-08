@@ -169,5 +169,6 @@
 #define MAX_FRAMELEN 1500
 //--------------------------------------------------
 
-void enc28j60_ini();
+void enc28j60_init();
 void enc28j60_packetSend(uint8_t *buf, uint16_t buflen);
+uint16_t enc28j60_packetReceive(uint8_t *buf, uint16_t buflen);

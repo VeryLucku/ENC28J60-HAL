@@ -113,7 +113,7 @@ static void enc28j60_writePhy(uint8_t addres, uint16_t data)
         ;
 }
 
-void enc28j60_ini(void)
+void enc28j60_init(void)
 {
     enc28j60_writeReg(ERXST, RXSTART_INIT);
     enc28j60_writeReg(ERXRDPT, RXSTART_INIT);

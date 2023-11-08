@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "enc28j60.h"
+#include "checksum.h"
 
 #define be16toword(a) ((((a) >> 8) & 0xff) | (((a) << 8) & 0xff00))
 
