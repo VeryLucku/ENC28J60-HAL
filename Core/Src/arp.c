@@ -8,6 +8,9 @@ extern uint8_t net_buf[ENC28J60_MAXFRAME];
 uint8_t macbroadcast[6] = MAC_BROADCAST;
 uint8_t macnull[6] = MAC_NULL;
 
+arp_record_ptr arp_rec[5];
+uint8_t current_arp_index = 0;
+
 uint8_t arp_read(enc28j60_frame_ptr *frame, uint16_t len)
 {
     uint8_t res = 0;
@@ -19,9 +22,17 @@ uint8_t arp_read(enc28j60_frame_ptr *frame, uint16_t len)
 
             if ((msg->op == ARP_REQUEST) && (!memcmp(msg->ipaddr_dst, ipaddr, 4)))
             {
-                if ((msg->op == ARP_REQUEST) && (!memcmp(msg->ipaddr_dst, ipaddr, 4)))
+                if (!memcmp(msg->ipaddr_dst, ipaddr, 4))
                 {
-                    res = 1;
+                    if (msg->op == ARP_REQUEST)
+                    {
+                        res = 1;
+                    }
+                    else if (msg->op == ARP_REPLY)
+                    {
+
+                        res = 2;
+                    }
                 }
             }
         }
@@ -64,4 +75,20 @@ uint8_t arp_request(uint8_t *ip_addr)
     frame->type = ETH_ARP;
     enc28j60_packetSend((void *)frame, sizeof(arp_msg_ptr) + sizeof(enc28j60_frame_ptr));
     return 1;
+}
+
+void arp_table_fill(enc28j60_frame_ptr *frame)
+{
+    uint8_t i;
+    arp_msg_ptr *msg = (void *)frame->data;
+
+    memcpy(arp_rec[current_arp_index].ipaddr, msg->ipaddr_src, 4);
+    memcpy(arp_rec[current_arp_index].macaddr, msg->macaddr_src, 6);
+
+    arp_rec[current_arp_index].sec = HAL_GetTick();
+    if (current_arp_index < 4)
+        current_arp_index++;
+    else
+        current_arp_index = 0;
+
 }

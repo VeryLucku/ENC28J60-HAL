@@ -87,6 +87,8 @@ uint8_t ip_send(enc28j60_frame_ptr *frame, uint16_t len)
 
 void eth_read(enc28j60_frame_ptr *frame, uint16_t len)
 {
+    uint8_t res = 0;
+
     if (len >= sizeof(enc28j60_frame_ptr))
     {
         sprintf(str1, "%02X:%02X:%02X:%02X:%02X:%02X-%02X:%02X:%02X:%02X:%02X:%02X; %d; %04Xrn",
@@ -97,9 +99,12 @@ void eth_read(enc28j60_frame_ptr *frame, uint16_t len)
         if (frame->type == ETH_ARP)
         {
             HAL_UART_Transmit(&huart2, (uint8_t *)str1, strlen(str1), 0x1000);
-            if (arp_read(frame, len - sizeof(enc28j60_frame_ptr)))
+            res = arp_read(frame, len - sizeof(enc28j60_frame_ptr));
+            if (res == 1)
             {
                 arp_send(frame);
+            } else if (res == 2) {
+                arp_table_fill(frame);
             }
         }
 
