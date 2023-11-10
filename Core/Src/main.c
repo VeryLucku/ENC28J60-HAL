@@ -46,7 +46,7 @@ SPI_HandleTypeDef hspi1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+char str[20];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -95,6 +95,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   net_init();
+  HAL_UART_Receive_IT(&huart2, (uint8_t *)str, 1);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -266,6 +267,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   if (GPIO_Pin == GPIO_PIN_8)
   {
     net_pool();
+  }
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+  if (huart == &huart2) {
+    UART2_RxCpltCallback();
   }
 }
 /* USER CODE END 4 */

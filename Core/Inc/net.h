@@ -7,8 +7,7 @@
 #include <stdint.h>
 #include "enc28j60.h"
 #include "checksum.h"
-
-#endif
+#include "arp.h"
 
 #define be16toword(a) ((((a) >> 8) & 0xff) | (((a) << 8) & 0xff00))
 
@@ -24,6 +23,8 @@
     {                    \
         192, 168, 1, 197 \
     }
+#define MAC_BROADCAST {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
+#define MAC_NULL {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 
 #define IP_ICMP 1
 #define IP_TCP 6
@@ -31,6 +32,8 @@
 
 #define ICMP_REQ 8
 #define ICMP_REPLY 0
+
+
 
 typedef struct enc28j60_frame
 {
@@ -58,28 +61,44 @@ typedef struct arp_msg
     uint8_t ipaddr_dst[4];
 } arp_msg_ptr;
 
-typedef struct ip_pkt{
-uint8_t verlen;//версия протокола и длина заголовка
-uint8_t ts;//тип севриса
-uint16_t len;//длина
-uint16_t id;//идентификатор пакета
-uint16_t fl_frg_of;//флаги и смещение фрагмента
-uint8_t ttl;//время жизни
-uint8_t prt;//тип протокола
-uint16_t cs;//контрольная сумма заголовка
-uint8_t ipaddr_src[4];//IP-адрес отправителя
-uint8_t ipaddr_dst[4];//IP-адрес получателя
-uint8_t data[];//данные
+typedef struct ip_pkt
+{
+    uint8_t verlen;        // версия протокола и длина заголовка
+    uint8_t ts;            // тип севриса
+    uint16_t len;          // длина
+    uint16_t id;           // идентификатор пакета
+    uint16_t fl_frg_of;    // флаги и смещение фрагмента
+    uint8_t ttl;           // время жизни
+    uint8_t prt;           // тип протокола
+    uint16_t cs;           // контрольная сумма заголовка
+    uint8_t ipaddr_src[4]; // IP-адрес отправителя
+    uint8_t ipaddr_dst[4]; // IP-адрес получателя
+    uint8_t data[];        // данные
 } ip_pkt_ptr;
 
-typedef struct icmp_pkt{
-uint8_t msg_tp;//тип севриса
-uint8_t msg_cd;//код сообщения
-uint16_t cs;//контрольная сумма заголовка
-uint16_t id;//идентификатор пакета
-uint16_t num;//номер пакета
-uint8_t data[];//данные
+typedef struct icmp_pkt
+{
+    uint8_t msg_tp; // тип сервиса
+    uint8_t msg_cd; // код сообщения
+    uint16_t cs;    // контрольная сумма заголовка
+    uint16_t id;    // идентификатор пакета
+    uint16_t num;   // номер пакета
+    uint8_t data[]; // данные
 } icmp_pkt_ptr;
+
+typedef struct USART_prop
+{
+    uint8_t usart_buf[20];
+    uint8_t usart_cnt;
+    uint8_t is_ip;
+} USART_prop_ptr;
+
 
 void net_init();
 void net_pool();
+
+void eth_send(enc28j60_frame_ptr *frame, uint16_t len);
+
+void UART2_RxCpltCallback();
+
+#endif // NET_H_

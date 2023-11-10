@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#endif
+
 
 
 #define SS_GPIO_PORT GPIOA
@@ -178,3 +178,5 @@
 void enc28j60_init();
 void enc28j60_packetSend(uint8_t *buf, uint16_t buflen);
 uint16_t enc28j60_packetReceive(uint8_t *buf, uint16_t buflen);
+
+#endif // ENC28J60_H_
