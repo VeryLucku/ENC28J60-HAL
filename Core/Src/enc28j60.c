@@ -108,61 +108,7 @@ static void enc28j60_writePhy(uint8_t addres, uint16_t data)
 
     enc28j60_writeReg(MIWR, data);
 
-    while (enc28j60_readRegByte(MISTAT) & MISTAT_BUSY)
-
-        ;
-}
-
-void enc28j60_init(void)
-{
-    enc28j60_writeReg(ERXST, RXSTART_INIT);
-    enc28j60_writeReg(ERXRDPT, RXSTART_INIT);
-    enc28j60_writeReg(ERXND, RXSTOP_INIT);
-    enc28j60_writeReg(ETXST, TXSTART_INIT);
-    enc28j60_writeReg(ETXND, TXSTOP_INIT);
-
-    // Enable Broadcast
-    enc28j60_writeRegByte(ERXFCON, enc28j60_readRegByte(ERXFCON) | ERXFCON_BCEN);
-
-    // setup channel level
-    // enable packet recieving (MARXEN) and hardware flow control (TXPAUS, RXPAUS)
-    enc28j60_writeRegByte(MACON1, MACON1_MARXEN | MACON1_TXPAUS | MACON1_RXPAUS);
-    enc28j60_writeRegByte(MACON2, 0x00);
-    // enable padding (PADCFG) (alignment packet to 60 bytes and add contol summ (4 bytes))
-    // enable length of packet control (FRMLNEN)
-    // auto add control sum (TXCRCEN)
-    enc28j60_writeOp(ENC28J60_BIT_FIELD_SET, MACON3, MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FRMLNEN);
-    // standart values to set full duplex delays
-    enc28j60_writeReg(MAIPG, 0x0C12);
-    // delay between frames
-    enc28j60_writeRegByte(MABBIPG, 0x12);
-    // max frame size
-    enc28j60_writeReg(MAMXFL, MAX_FRAMELEN);
-    // set MAC addres
-    enc28j60_writeRegByte(MAADR5, macaddr[0]);
-    enc28j60_writeRegByte(MAADR4, macaddr[1]);
-    enc28j60_writeRegByte(MAADR3, macaddr[2]);
-    enc28j60_writeRegByte(MAADR2, macaddr[3]);
-    enc28j60_writeRegByte(MAADR1, macaddr[4]);
-    enc28j60_writeRegByte(MAADR0, macaddr[5]);
-
-    enc28j60_writeRegByte(MAADR0, macaddr[5]);
-
-    // setup physical level
-    // disable loopback
-    enc28j60_writePhy(PHCON2, PHCON2_HDLDIS);
-    // leds
-    enc28j60_writePhy(PHLCON, PHLCON_LACFG2 |
-
-                                  PHLCON_LBCFG2 | PHLCON_LBCFG1 | PHLCON_LBCFG0 |
-
-                                  PHLCON_LFRQ0 | PHLCON_STRCH);
-
-    enc28j60_SetBank(ECON1);
-    // enable global interrupts
-    enc28j60_writeOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE | EIE_PKTIE);
-    // enable recieving of packets
-    enc28j60_writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
+    while (enc28j60_readRegByte(MISTAT) & MISTAT_BUSY);
 }
 
 uint16_t enc28j60_packetReceive(uint8_t *buf, uint16_t buflen)
@@ -225,4 +171,56 @@ void enc28j60_packetSend(uint8_t *buf, uint16_t buflen)
     enc28j60_writeBuf(1, (uint8_t *)"x00");
     enc28j60_writeBuf(buflen, buf);
     enc28j60_writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_TXRTS);
+}
+
+void enc28j60_init(void)
+{
+    enc28j60_writeReg(ERXST, RXSTART_INIT);
+    enc28j60_writeReg(ERXRDPT, RXSTART_INIT);
+    enc28j60_writeReg(ERXND, RXSTOP_INIT);
+    enc28j60_writeReg(ETXST, TXSTART_INIT);
+    enc28j60_writeReg(ETXND, TXSTOP_INIT);
+
+    // Enable Broadcast
+    enc28j60_writeRegByte(ERXFCON, enc28j60_readRegByte(ERXFCON) | ERXFCON_BCEN);
+
+    // setup channel level
+    // enable packet recieving (MARXEN) and hardware flow control (TXPAUS, RXPAUS)
+    enc28j60_writeRegByte(MACON1, MACON1_MARXEN | MACON1_TXPAUS | MACON1_RXPAUS);
+    enc28j60_writeRegByte(MACON2, 0x00);
+    // enable padding (PADCFG) (alignment packet to 60 bytes and add contol summ (4 bytes))
+    // enable length of packet control (FRMLNEN)
+    // auto add control sum (TXCRCEN)
+    enc28j60_writeOp(ENC28J60_BIT_FIELD_SET, MACON3, MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FRMLNEN);
+    // standart values to set full duplex delays
+    enc28j60_writeReg(MAIPG, 0x0C12);
+    // delay between frames
+    enc28j60_writeRegByte(MABBIPG, 0x12);
+    // max frame size
+    enc28j60_writeReg(MAMXFL, MAX_FRAMELEN);
+    // set MAC addres
+    enc28j60_writeRegByte(MAADR5, macaddr[0]);
+    enc28j60_writeRegByte(MAADR4, macaddr[1]);
+    enc28j60_writeRegByte(MAADR3, macaddr[2]);
+    enc28j60_writeRegByte(MAADR2, macaddr[3]);
+    enc28j60_writeRegByte(MAADR1, macaddr[4]);
+    enc28j60_writeRegByte(MAADR0, macaddr[5]);
+
+    enc28j60_writeRegByte(MAADR0, macaddr[5]);
+
+    // setup physical level
+    // disable loopback
+    enc28j60_writePhy(PHCON2, PHCON2_HDLDIS);
+    // leds
+    enc28j60_writePhy(PHLCON, PHLCON_LACFG2 |
+
+                                  PHLCON_LBCFG2 | PHLCON_LBCFG1 | PHLCON_LBCFG0 |
+
+                                  PHLCON_LFRQ0 | PHLCON_STRCH);
+
+    enc28j60_SetBank(ECON1);
+    // enable global interrupts
+    enc28j60_writeOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE | EIE_PKTIE);
+    // enable recieving of packets
+    enc28j60_writeOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
 }

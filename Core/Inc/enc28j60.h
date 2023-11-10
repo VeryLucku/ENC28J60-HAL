@@ -1,7 +1,13 @@
+#ifndef ENC28J60_H_
+#define ENC28J60_H_
+
 #include "stm32f4xx_hal.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+
+#endif
+
 
 #define SS_GPIO_PORT GPIOA
 #define SS_PIN 4
