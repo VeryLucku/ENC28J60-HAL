@@ -8,7 +8,8 @@
 #include "enc28j60.h"
 #include "checksum.h"
 #include "net_structs.h"
-#include "arp_prot.h"
+#include "NetworkLevel/arp_prot.h"
+#include "DataLinkLevel/eth_prot.h"
 
 
 #define be16toword(a) ((((a) >> 8) & 0xff) | (((a) << 8) & 0xff00))
@@ -37,8 +38,6 @@
 
 void net_init();
 void net_pool();
-
-uint8_t icmp_read(enc28j60_frame_ptr *frame, uint16_t len);
 
 void UART2_RxCpltCallback();
 

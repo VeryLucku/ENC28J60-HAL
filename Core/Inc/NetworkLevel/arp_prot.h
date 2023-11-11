@@ -8,6 +8,7 @@
 #include "enc28j60.h"
 #include "net_structs.h"
 #include "net.h"
+#include "DataLinkLevel/eth_prot.h"
 
 uint8_t arp_request(uint8_t *ip_addr);
 

@@ -1,4 +1,4 @@
-#include "arp_prot.h"
+#include "NetworkLevel/arp_prot.h"
 
 extern UART_HandleTypeDef huart2;
 extern uint8_t ipaddr[4];
@@ -58,7 +58,6 @@ void arp_send(enc28j60_frame_ptr *frame)
 
 uint8_t arp_request(uint8_t *ip_addr)
 {
-    uint8_t i;
     enc28j60_frame_ptr *frame = (void *)net_buf;
     arp_msg_ptr *msg = (void *)frame->data;
     msg->net_tp = ARP_ETH;
