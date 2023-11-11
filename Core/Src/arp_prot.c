@@ -1,4 +1,4 @@
-#include "arp.h"
+#include "arp_prot.h"
 
 extern UART_HandleTypeDef huart2;
 extern uint8_t ipaddr[4];
@@ -79,7 +79,6 @@ uint8_t arp_request(uint8_t *ip_addr)
 
 void arp_table_fill(enc28j60_frame_ptr *frame)
 {
-    uint8_t i;
     arp_msg_ptr *msg = (void *)frame->data;
 
     memcpy(arp_rec[current_arp_index].ipaddr, msg->ipaddr_src, 4);
