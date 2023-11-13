@@ -41,7 +41,7 @@ uint8_t arp_read(enc28j60_frame_ptr *frame, uint16_t len)
     return res;
 }
 
-void arp_send(enc28j60_frame_ptr *frame)
+void arp_reply(enc28j60_frame_ptr *frame)
 {
     arp_msg_ptr *msg = (void *)frame->data;
     msg->op = ARP_REPLY;

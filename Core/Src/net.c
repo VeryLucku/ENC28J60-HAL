@@ -15,7 +15,6 @@ uint8_t ipaddr[4] = IP_ADDR;
 void net_pool()
 {
     uint16_t len;
-    uint8_t ip[4] = {0};
 
     enc28j60_frame_ptr *frame = (void *)net_buf;
 

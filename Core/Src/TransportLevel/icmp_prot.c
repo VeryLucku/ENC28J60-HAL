@@ -11,7 +11,7 @@ uint8_t icmp_read(enc28j60_frame_ptr *frame, uint16_t len)
     {
         icmp_pkt->msg_tp = ICMP_REPLY;
         icmp_pkt->cs = 0;
-        icmp_pkt->cs = eth_checksum((void *)icmp_pkt, len);
+        icmp_pkt->cs = eth_checksum((void *)icmp_pkt, len, DEFAULT);
         ip_send(frame, len + sizeof(ip_pkt_ptr));
     }
 

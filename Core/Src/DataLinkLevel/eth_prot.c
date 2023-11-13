@@ -21,7 +21,7 @@ void eth_read(enc28j60_frame_ptr *frame, uint16_t len)
             res = arp_read(frame, len - sizeof(enc28j60_frame_ptr));
             if (res == 1)
             {
-                arp_send(frame);
+                arp_reply(frame);
             } else if (res == 2) {
                 arp_table_fill(frame);
             }

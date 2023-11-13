@@ -39,7 +39,7 @@ uint8_t ip_send(enc28j60_frame_ptr *frame, uint16_t len)
     memcpy(ip_pkt->ipaddr_dst, ip_pkt->ipaddr_src, 4);
     memcpy(ip_pkt->ipaddr_src, ipaddr, 4);
 
-    ip_pkt->cs = eth_checksum((void *)ip_pkt, sizeof(ip_pkt_ptr));
+    ip_pkt->cs = eth_checksum((void *)ip_pkt, sizeof(ip_pkt_ptr), DEFAULT);
 
     eth_send(frame, len);
 

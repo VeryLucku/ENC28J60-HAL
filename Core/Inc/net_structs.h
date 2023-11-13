@@ -3,6 +3,12 @@
 
 #include <stdint.h>
 
+typedef enum
+{
+    DEFAULT,
+    UDP_MOD
+} checksum_type;
+
 typedef struct enc28j60_frame
 {
     uint8_t addr_dest[6];
@@ -56,7 +62,7 @@ typedef struct udp_pkt {
     uint16_t len;
     uint16_t cs;
     uint8_t data[];
-} udp_prk_ptr;
+} udp_pkt_ptr;
 
 typedef struct USART_prop
 {
