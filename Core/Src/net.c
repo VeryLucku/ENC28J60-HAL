@@ -24,6 +24,13 @@ void net_pool()
         eth_read(frame, len);
     }
 
+    
+}
+
+void net_cmd()
+{
+    uint8_t ip[4] = {0};
+    
     // if ip address is sent from pc
     if (usartprop.is_ip == 1)
     {
@@ -76,6 +83,7 @@ void UART2_RxCpltCallback()
     else if (b == 'a')
     {
         usartprop.is_ip = 1;
+        net_cmd();
     }
     else
     {
