@@ -5,15 +5,10 @@ extern uint8_t net_buf[ENC28J60_MAXFRAME];
 
 uint8_t udp_read(enc28j60_frame_ptr *frame, uint16_t len)
 {
-    uint8_t res = 0;
-
-    ip_pkt_ptr *ip_pkt = (void *)(frame->data);
-
-    udp_pkt_ptr *udp_pkt = (void *)(ip_pkt->data);
 
     udp_reply(frame, len);
 
-    return res;
+    return 0;
 }
 
 uint8_t udp_send(uint8_t *ip_addr, uint16_t port)

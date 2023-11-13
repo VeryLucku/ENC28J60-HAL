@@ -1,6 +1,7 @@
 #include "net.h"
 
 void ip_extract(char *ip_str, uint8_t len, uint8_t *ipextr);
+uint16_t port_extract(char *ip_str, uint8_t len);
 
 char str1[60] = {0};
 extern char str[20];
@@ -49,7 +50,7 @@ void net_cmd()
     {
         port = port_extract((char *)usartprop.usart_buf, usartprop.usart_cnt);
         udp_send(ip, port);
-        usartprop.send_type = RESET;
+        usartprop.send_type = NO_SEND;
     }
 }
 
@@ -98,7 +99,7 @@ void ip_extract(char *ip_str, uint8_t len, uint8_t *ipextr)
     {
         offset = ss1 - ip_str + 1;
         strncpy(ss2, ip_str, offset);
-        ss2[offset];
+        ss2[offset] = 0;
         ipextr[3] = atoi(ss2);
         return;
     }
