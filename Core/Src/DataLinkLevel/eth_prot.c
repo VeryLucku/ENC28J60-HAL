@@ -3,6 +3,7 @@
 extern char str1[60];
 extern UART_HandleTypeDef huart2;
 extern uint8_t macaddr[6];
+extern USART_prop_ptr usartprop;
 
 void eth_read(enc28j60_frame_ptr *frame, uint16_t len)
 {
@@ -22,8 +23,14 @@ void eth_read(enc28j60_frame_ptr *frame, uint16_t len)
             if (res == 1)
             {
                 arp_reply(frame);
-            } else if (res == 2) {
+            }
+            else if (res == 2)
+            {
                 arp_table_fill(frame);
+                if (usartprop.send_type == UDP_SEND) {
+                    memcpy(frame->addr_dest, frame->addr_src, 6);
+                    net_cmd();
+                }
             }
         }
 
@@ -36,7 +43,7 @@ void eth_read(enc28j60_frame_ptr *frame, uint16_t len)
 
 void eth_send(enc28j60_frame_ptr *frame, uint16_t len)
 {
-    memcpy(frame->addr_dest, frame->addr_src, 6);
+    // memcpy(frame->addr_dest, frame->addr_src, 6);
     memcpy(frame->addr_src, macaddr, 6);
     enc28j60_packetSend((void *)frame, len + sizeof(enc28j60_frame_ptr));
 }

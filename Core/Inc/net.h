@@ -38,6 +38,7 @@
 
 void net_init();
 void net_pool();
+void net_cmd();
 
 void UART2_RxCpltCallback();
 

@@ -8,6 +8,8 @@ extern uint8_t net_buf[ENC28J60_MAXFRAME];
 uint8_t macbroadcast[6] = MAC_BROADCAST;
 uint8_t macnull[6] = MAC_NULL;
 
+extern USART_prop_ptr usartprop;
+
 arp_record_ptr arp_rec[5];
 uint8_t current_arp_index = 0;
 
@@ -53,11 +55,15 @@ void arp_reply(enc28j60_frame_ptr *frame)
     memcpy(msg->ipaddr_src, ipaddr, 4);
     memcpy(msg->ipaddr_src, ipaddr, 4);
 
+    memcpy(frame->addr_dest, frame->addr_src, 6);
+
     eth_send(frame, sizeof(arp_msg_ptr));
 }
 
 uint8_t arp_request(uint8_t *ip_addr)
 {
+    int i;
+
     enc28j60_frame_ptr *frame = (void *)net_buf;
     arp_msg_ptr *msg = (void *)frame->data;
     msg->net_tp = ARP_ETH;
@@ -73,6 +79,20 @@ uint8_t arp_request(uint8_t *ip_addr)
     memcpy(frame->addr_src, macaddr, 6);
     frame->type = ETH_ARP;
     enc28j60_packetSend((void *)frame, sizeof(arp_msg_ptr) + sizeof(enc28j60_frame_ptr));
+
+    for (i = 0; i < 5; ++i)
+    {
+        if (!memcmp(arp_rec[i].ipaddr, ip_addr, 4))
+        {
+            memcpy(frame->addr_dest, arp_rec[i].macaddr, 6);
+            if (usartprop.send_type == UDP_SEND)
+            {
+                net_cmd();
+            }
+            return 0;
+        }
+    }
+
     return 1;
 }
 
@@ -88,5 +108,4 @@ void arp_table_fill(enc28j60_frame_ptr *frame)
         current_arp_index++;
     else
         current_arp_index = 0;
-
 }

@@ -3,11 +3,21 @@
 
 #include <stdint.h>
 
+#define USART_BUF_LEN 25
+
 typedef enum
 {
     DEFAULT,
     UDP_MOD
 } checksum_type;
+
+typedef enum
+{
+    RESET,
+    ARP_SEND,
+    TRY_UDP_SEND,
+    UDP_SEND
+} send_type;
 
 typedef struct enc28j60_frame
 {
@@ -66,9 +76,9 @@ typedef struct udp_pkt {
 
 typedef struct USART_prop
 {
-    uint8_t usart_buf[20];
+    uint8_t usart_buf[USART_BUF_LEN];
     uint8_t usart_cnt;
-    uint8_t is_ip;
+    send_type send_type;
 } USART_prop_ptr;
 
 #endif // NET_STRUCTS_H_
