@@ -1,9 +1,15 @@
 #include "checksum.h"
 #include "net.h"
 
-uint16_t eth_checksum(uint8_t *ptr, uint16_t len)
+uint16_t eth_checksum(uint8_t *ptr, uint16_t len, checksum_type type)
 {
     uint32_t sum = 0;
+
+    if (type == 1)
+    {
+        sum += IP_UDP;
+        sum += len - 8;
+    }
 
     while (len > 1)
     {
