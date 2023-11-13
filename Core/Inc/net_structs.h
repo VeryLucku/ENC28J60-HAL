@@ -13,7 +13,7 @@ typedef enum
 
 typedef enum
 {
-    RESET,
+    NO_SEND,
     ARP_SEND,
     TRY_UDP_SEND,
     UDP_SEND
