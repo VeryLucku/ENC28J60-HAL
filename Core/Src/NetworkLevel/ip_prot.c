@@ -20,6 +20,7 @@ uint8_t ip_read(enc28j60_frame_ptr *frame, uint16_t len)
         }
         else if (ip_pkt->prt == IP_UDP)
         {
+            udp_read(frame, len);
         }
     }
 

@@ -50,6 +50,14 @@ typedef struct icmp_pkt
     uint8_t data[]; // данные
 } icmp_pkt_ptr;
 
+typedef struct udp_pkt {
+    uint16_t port_src;
+    uint16_t port_dst;
+    uint16_t len;
+    uint16_t cs;
+    uint8_t data[];
+} udp_prk_ptr;
+
 typedef struct USART_prop
 {
     uint8_t usart_buf[20];

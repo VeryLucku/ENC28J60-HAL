@@ -9,6 +9,7 @@
 #include "net_structs.h"
 #include "net.h"
 #include "TransportLevel/icmp_prot.h"
+#include "TransportLevel/udp_prot.h"
 #include "DataLinkLevel/eth_prot.h"
 
 uint8_t ip_read(enc28j60_frame_ptr *frame, uint16_t len);
